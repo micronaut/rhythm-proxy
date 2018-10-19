@@ -1,0 +1,17 @@
+{
+  "name": "rythm-proxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Eric Danowski <eric.m.danowski@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "connect": "^3.6.6",
+    "http-proxy": "^1.17.0",
+    "transformer-proxy": "^0.3.4"
+  }
+}
