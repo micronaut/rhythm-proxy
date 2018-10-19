@@ -1,59 +1,21 @@
-'use strict';
-
 var http = require('http'),
-  connect = require('connect'),
-  httpProxy = require('http-proxy'),
-  transformerProxy = require('transformer-proxy');
-
+    httpProxy = require('http-proxy');
+ 
 //
-// The transforming function.
+// Create a proxy server with custom application logic
 //
-
-// var transformerFunction = function (data, req, res) {
-//   return data + "\n // an additional line at the end of every file";
-// };
-
-var transformerFunction = function (data, req, res) {
-  return new Promise(function(resolve, reject) {
-    http.get('http://google.com/', function(response) {
-      console.log(response)
-      resolve(data + '<br />Google.com request status code: ' + response.statusCode);
-    }).on('error', function(error) {
-      reject(error.message);
-    });
-  });
-};
-
-
+var proxy = httpProxy.createProxyServer({});
+ 
 //
-// A proxy as a basic connect app.
+// Create your custom server and just call `proxy.web()` to proxy
+// a web request to the target passed in the options
+// also you can use `proxy.ws()` to proxy a websockets request
 //
-
-var proxiedPort = 3000;
-var proxyPort = 8013;
-
-var app = connect();
-var proxy = httpProxy.createProxyServer({target: 'http://localhost:' + proxiedPort});
-
-app.use(transformerProxy(transformerFunction));
-
-app.use(function (req, res) {
-  proxy.web(req, res);
+var server = http.createServer(function(req, res) {
+  // You can define here your custom logic to handle the request
+  // and then proxy the request.
+  proxy.web(req, res, { target: 'http://jenkins-as01.gale.web:8080/view/Omni-Radiator/' });
 });
-
-http.createServer(app).listen(proxyPort);
-
-
-//
-// A simple server which will be proxied.
-//
-
-http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.write('<html><head></head><body>A simple HTML file</body></html>');
-  res.end();
-}).listen(proxiedPort);
-
-
-console.log('The proxied server listens on', proxiedPort);
-console.log('The proxy server listens on', proxyPort);
+ 
+console.log("listening on port 5050")
+server.listen(5050);
