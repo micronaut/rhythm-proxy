@@ -14,6 +14,7 @@
     "connect": "^3.6.6",
     "harmon": "^1.4.3",
     "http-proxy": "^1.17.0",
+    "http-proxy-rules": "^1.1.3",
     "transformer-proxy": "^0.3.4"
   }
 }
