@@ -32,7 +32,7 @@ headSelect.func = function(node) {
       //N.B. if end isn't called it will just hang.
       
       stm.end(tag + '<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>' +
-      '<script>var rythm = new Rythm();rythm.setMusic("http://localhost:8000/test.mp3");rythm.addRythm("twist3", "twist", 0, 10, { direction: "left" });rythm.start();</script>');      
+      '<script>var rythm = new Rythm();rythm.setMusic("http://localhost:8000/test.mp3");rythm.addRythm("twist3", "twist", 0, 10, { direction: "left" });setTimeout(function() {rythm.start();}, 5000);</script>');      
     });    
 
 };
@@ -46,7 +46,8 @@ simpleselect.func = function (node) {
     
     //Create a read/write stream wit the outer option 
     //so we get the full tag and we can replace it
-    node.setAttribute('class', rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)]);
+    var currentClass = node.getAttribute('class');
+    node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)]);
     // var stm = node.createStream({ "outer" : true });
 
     // //variable to hold all the info from the data events
@@ -79,10 +80,11 @@ selects.push(simpleselect);
 var app = connect();
 
 var proxy = httpProxy.createProxyServer({
-   target: 'http://jenkins-as01.gale.web:8080/view/Omni-Radiator/',
+   target: 'http://jenkins-as01.gale.web:8080',
    agent  : http.globalAgent, 
    headers:{ host: 'jenkins-as01.gale.web:8080',
-   'Accept-Encoding': 'identity'}
+   'Accept-Encoding': 'identity'},
+   followRedirects: true
 })
 
 
