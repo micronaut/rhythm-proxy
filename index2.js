@@ -53,7 +53,7 @@ simpleselect.func = function (node) {
     var currentClass = node.getAttribute('class');
     var twist = ' shake3';
     if (currentClass.indexOf('successful') > -1) {
-        twist = ' twist3';
+        twist = ' twist';
     } 
     // node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)] + ' twist3');
     node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)] + twist);
