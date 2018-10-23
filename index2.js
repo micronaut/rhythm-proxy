@@ -11,21 +11,24 @@ let clientScript = `
         var rythm = new Rythm();
         rythm.setMusic("http://localhost:8000/test.mp3");
         rythm.addRythm("shake3", "shake", 0, 10, { direction: "left", min: 5, max: 100 });
-        rythm.addRythm("twist1", "twist", 0, 10);rythm.addRythm("twist3", "twist", 0, 10, { direction: "left" });
+        rythm.addRythm("twist1", "twist", 0, 10);
+        rythm.addRythm("twist3", "twist", 0, 10, { direction: "left", min: 180, max: 180 });
         
-        let lastRuntime = localStorage.getItem('lastRuntime') || 0;
-        let currentTime = (new Date()).getTime();
-        if ((currentTime - lastRuntime) > 600000) {
-            localStorage.setItem('lastRuntime', currentTime);
+        let shouldPlay = localStorage.getItem('shouldPlay') || false;
+        if (shouldPlay && document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
+            localStorage.setItem('shouldPlay', false);
             setTimeout(function() {
                 rythm.start();
             }, 5000);
+        } else {
+            localStorage.setItem('shouldPlay', true);
         }
     </script>
 `;
 var selects = [];
 var simpleselect = {};
 var headSelect = {};
+
 
 headSelect.query = 'footer';
 headSelect.func = function(node) {
@@ -47,7 +50,7 @@ simpleselect.func = function (node) {
     var twist = ' shake3';
     if (currentClass.indexOf('successful') > -1) {
         twist = ' twist1';
-    }
+    } 
     // node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)] + ' twist3');
     node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)] + twist);
 }
