@@ -14,7 +14,7 @@ let clientScript = `
         rythm.setMusic("http://localhost:8000/" + song);
         rythm.addRythm("shake3", "shake", 0, 10, { direction: "left", min: 5, max: 100 });
         rythm.addRythm("twist1", "twist", 0, 10);
-        rythm.addRythm("twist3", "twist", 0, 10, { direction: "left", min: 180, max: 180 });
+        rythm.addRythm("twist3", "twist", 0, 10, { direction: "left", min: 20, max: 40 });
         
         let shouldPlay = localStorage.getItem('shouldPlay') || 'false';
         if (shouldPlay === 'true' && document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
