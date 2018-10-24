@@ -9,12 +9,12 @@ let clientScript = `
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         var rythm = new Rythm();
-        let songs = ['stayin-alive.mp3', 'jiggy-with-it.mp3'];
+        let songs = ['jiggy-with-it.mp3', 'celebration.mp3', 'jiggy-with-it.mp3', 'stayin-alive.mp3', 'gonna-make-you-sweat.mp3', 'jiggy-with-it.mp3'];
         let song = songs[Math.floor(Math.random()*songs.length)];
         rythm.setMusic("http://localhost:8000/" + song);
         rythm.addRythm("shake3", "shake", 0, 10, { direction: "left", min: 5, max: 100 });
         rythm.addRythm("twist1", "twist", 0, 10);
-        rythm.addRythm("twist3", "twist", 0, 10, { direction: "left", min: 20, max: 40 });
+        rythm.addRythm("twist3", "twist", 0, 10, { direction: "left" });
         
         let shouldPlay = localStorage.getItem('shouldPlay') || 'false';
         if (shouldPlay === 'true' && document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
@@ -53,7 +53,7 @@ simpleselect.func = function (node) {
     var currentClass = node.getAttribute('class');
     var twist = ' shake3';
     if (currentClass.indexOf('successful') > -1) {
-        twist = ' twist';
+        twist = ' twist3';
     } 
     // node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)] + ' twist3');
     node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)] + twist);
@@ -74,17 +74,8 @@ app.use(require('harmon')([], selects, true));
 
 app.use(
   function (req, res) {
-      if (req.url && req.url === '/jiggy-with-it.mp3') {
-        var filePath = path.join(__dirname, 'jiggy-with-it.mp3');
-        var stat = fileSystem.statSync(filePath);
-        res.writeHead(200, {
-            'Content-Type': 'audio/mpeg',
-            'Content-Length': stat.size
-        });
-        var readStream = fileSystem.createReadStream(filePath);
-        readStream.pipe(res);
-      } else if (req.url && req.url === '/stayin-alive.mp3') {
-        var filePath = path.join(__dirname, 'stayin-alive.mp3');
+      if (req.url && req.url.indexOf('.mp3') > -1) {
+        var filePath = path.join(__dirname, req.url);
         var stat = fileSystem.statSync(filePath);
         res.writeHead(200, {
             'Content-Type': 'audio/mpeg',
