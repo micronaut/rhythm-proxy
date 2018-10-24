@@ -4,8 +4,74 @@ var http = require('http'),
     httpProxy = require('http-proxy'),
     fileSystem = require('fs'),
     path = require('path');
+      
+
+
+
 
 let clientScript = `
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .creepy {
+            position: absolute;
+            left: -30%;
+            bottom: 0;
+            animation: move 8s linear 8s;
+            width: 300px;
+            z-index: 999999;
+            -webkit-transform: scaleX(-1);
+            transform: scaleX(-1);
+        }
+
+        .ghost {
+            animation: move 12s linear 12s;
+            animation-direction: reverse;
+            -webkit-transform: scaleX(1);
+              transform: scaleX(1);
+            bottom: 50%;
+        }
+
+        .witch {
+            animation: move 3s linear 3s;
+            -webkit-transform: scaleX(1);
+            transform: scaleX(1);
+            top: 10%;
+        }
+
+        .hidden {
+            display: none;
+        }
+        
+        @-webkit-keyframes move {
+            from {
+            left: -30%;
+            }
+            to {
+            left: 100%;
+            }
+        }   
+    </style>
+    <div class="creepy zombie hidden">
+        <img src="http://localhost:8000/zombie.gif" />
+    </div>
+    <div class="creepy witch hidden">
+        <img src="http://localhost:8000/witch.gif" />
+    </div>
+    <div class="creepy ghost hidden">
+        <img src="http://localhost:8000/ghost.gif" />
+    </div>
+    <script>
+        function showMonster() {
+           let monsters = ['.zombie', '.witch', '.ghost']; 
+           let timing = [5000, 7500, 10000, 3000]; 
+           document.querySelector(monsters[Math.floor(Math.random()*monsters.length)]).classList.remove('hidden');
+           setTimeout(showMonster, timing[Math.floor(Math.random()*timing.length)]);
+        }
+        setTimeout(showMonster, 5000);
+    </script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         var rythm = new Rythm();
@@ -25,8 +91,8 @@ let clientScript = `
         } else if (document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
             localStorage.setItem('shouldPlay', 'false');
         } else {
-	    localStorage.setItem('shouldPlay', 'true');
-	}
+	        localStorage.setItem('shouldPlay', 'true');
+	    }
     </script>
 `;
 var selects = [];
@@ -79,6 +145,15 @@ app.use(
         var stat = fileSystem.statSync(filePath);
         res.writeHead(200, {
             'Content-Type': 'audio/mpeg',
+            'Content-Length': stat.size
+        });
+        var readStream = fileSystem.createReadStream(filePath);
+        readStream.pipe(res);
+      } else if (req.url && req.url.indexOf('.gif') > -1) {
+        var filePath = path.join(__dirname, req.url);
+        var stat = fileSystem.statSync(filePath);
+        res.writeHead(200, {
+            'Content-Type': 'gif',
             'Content-Length': stat.size
         });
         var readStream = fileSystem.createReadStream(filePath);
