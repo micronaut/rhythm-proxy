@@ -21,7 +21,7 @@ let clientScript = `
             bottom: 0;
             animation: move 8s linear 8s;
             width: 300px;
-            z-index: 999999;
+            z-index: 999995;
             -webkit-transform: scaleX(-1);
             transform: scaleX(-1);
         }
@@ -53,9 +53,24 @@ let clientScript = `
             left: 100%;
             }
         }   
+
+        .scary {
+            z-index: 999999;
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .scary-image { 
+            width: 100%;
+        }
     </style>
     <div class="creepy zombie hidden">
         <img src="http://localhost:8000/zombie.gif" />
+    </div>
+    <div class="scary hidden">
+        <img class="scary-image" src="http://localhost:8000/scary.gif" />
     </div>
     <div class="creepy witch hidden">
         <img src="http://localhost:8000/witch.gif" />
@@ -63,6 +78,20 @@ let clientScript = `
     <div class="creepy ghost hidden">
         <img src="http://localhost:8000/ghost.gif" />
     </div>
+    <script>
+        function showScary() {
+            document.querySelector('.scary').classList.remove('hidden');
+            setTimeout(hideScary, 6000);
+        }
+        setTimeout(showScary, 10000);
+    </script>
+    <script>
+        function hideScary() {
+            let timing = [10000, 15000, 5000]; 
+            document.querySelector('.scary').classList.add('hidden');
+            setTimeout(showScary, timing[Math.floor(Math.random()*timing.length)]);
+        }
+    </script>
     <script>
         function showMonster() {
            let monsters = ['.zombie', '.witch', '.ghost']; 
