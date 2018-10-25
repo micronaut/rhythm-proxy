@@ -80,8 +80,15 @@ let clientScript = `
     </div>
     <script>
         function showScary() {
-            document.querySelector('.scary').classList.remove('hidden');
-            setTimeout(hideScary, 6000);
+            let booCount = localStorage.getItem('boo') || '0';
+            booCount = parseInt(booCount);
+            if (booCount++ % 6  === 0) {
+                document.querySelector('.scary').classList.remove('hidden');
+                setTimeout(hideScary, 6000);
+            } else  {
+                setTimeout(showScary, 18000);
+            }
+            localStorage.setItem('boo', booCount);
         }
         setTimeout(showScary, 10000);
     </script>
