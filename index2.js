@@ -111,7 +111,7 @@ let clientScript = `
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         var rythm = new Rythm();
-        let songs = ['jiggy-with-it.mp3', 'celebration.mp3', 'jiggy-with-it.mp3', 'stayin-alive.mp3', 'gonna-make-you-sweat.mp3', 'jiggy-with-it.mp3'];
+        let songs = ['jiggy-with-it.mp3', 'celebration.mp3', 'dont-stop.mp3', 'jiggy-with-it.mp3'];
         let song = songs[Math.floor(Math.random()*songs.length)];
         rythm.setMusic("http://localhost:8000/" + song);
         rythm.addRythm("shake3", "shake", 0, 10, { direction: "left", min: 5, max: 100 });
