@@ -66,18 +66,6 @@ let clientScript = `
             width: 100%;
         }
     </style>
-    <div class="creepy zombie hidden">
-        <img src="http://localhost:8000/zombie.gif" />
-    </div>
-    <div class="scary hidden">
-        <img class="scary-image" src="http://localhost:8000/scary.gif" />
-    </div>
-    <div class="creepy witch hidden">
-        <img src="http://localhost:8000/witch.gif" />
-    </div>
-    <div class="creepy ghost hidden">
-        <img src="http://localhost:8000/ghost.gif" />
-    </div>
     <div class="container">
 	    <div class="loader">
             <span></span>
@@ -128,11 +116,19 @@ let clientScript = `
             width: 80px;
             height: 80px;
             margin: -280px 40px 54px  -34px;
-                background:url("http://premiumcoding.com/CSSTricks/fallingLeaves/leaf.png");
-            
+            background-size: 100% 100%;
             -webkit-animation: loader 10s infinite  linear;
             -moz-animation: loader 10s infinite  linear;
         }
+
+        .leaf {
+            background:url("http://premiumcoding.com/CSSTricks/fallingLeaves/leaf.png");
+        }
+
+        .snowflake {
+            background:url("http://localhost:8000/snowflake.png");
+        }
+
         .loader span:nth-child(5n+5) {
 
             -webkit-animation-delay: 1.3s;
@@ -215,37 +211,21 @@ let clientScript = `
             -webkit-transform: translate(150px, 800px) rotateZ(360deg);
         }
         }   
-    </style>    
+    </style> 
     <script>
-        function showScary() {
-            let booCount = localStorage.getItem('boo') || '0';
-            booCount = parseInt(booCount);
-            if (booCount++ % 6  === 0) {
-                document.querySelector('.scary').classList.remove('hidden');
-                setTimeout(hideScary, 6000);
-            } else  {
-                setTimeout(showScary, 18000);
+        function showLeaf() {
+            if (Math.floor(Math.random() * 10) > 4) {
+                document.querySelectorAll('.loader span').forEach(element => {
+                    element.classList.add('leaf');
+                });
+            } else {
+                document.querySelectorAll('.loader span').forEach(element => {
+                    element.classList.add('snowflake');
+                });
             }
-            localStorage.setItem('boo', booCount);
         }
-        setTimeout(showScary, 10000);
-    </script>
-    <script>
-        function hideScary() {
-            let timing = [10000, 15000, 5000]; 
-            document.querySelector('.scary').classList.add('hidden');
-            setTimeout(showScary, timing[Math.floor(Math.random()*timing.length)]);
-        }
-    </script>
-    <script>
-        function showMonster() {
-           let monsters = ['.zombie', '.witch', '.ghost']; 
-           let timing = [5000, 7500, 10000, 3000]; 
-           document.querySelector(monsters[Math.floor(Math.random()*monsters.length)]).classList.remove('hidden');
-           setTimeout(showMonster, timing[Math.floor(Math.random()*timing.length)]);
-        }
-        setTimeout(showMonster, 5000);
-    </script>
+        showLeaf();
+    </script>   
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         var rythm = new Rythm();
@@ -295,7 +275,6 @@ simpleselect.func = function (node) {
     if (currentClass.indexOf('successful') > -1) {
         twist = ' twist3';
     } 
-    // node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)] + ' twist3');
     node.setAttribute('class', currentClass + ' ' + rhythmClasses[Math.floor(Math.random()*rhythmClasses.length)] + twist);
 }
 
@@ -328,6 +307,15 @@ app.use(
         var stat = fileSystem.statSync(filePath);
         res.writeHead(200, {
             'Content-Type': 'gif',
+            'Content-Length': stat.size
+        });
+        var readStream = fileSystem.createReadStream(filePath);
+        readStream.pipe(res);
+      } else if (req.url && req.url.indexOf('snowflake.png') > -1) {
+        var filePath = path.join(__dirname, req.url);
+        var stat = fileSystem.statSync(filePath);
+        res.writeHead(200, {
+            'Content-Type': 'png',
             'Content-Length': stat.size
         });
         var readStream = fileSystem.createReadStream(filePath);
