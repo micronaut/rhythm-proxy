@@ -42,7 +42,7 @@ let clientScript = `
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
         
         @-webkit-keyframes move {
@@ -66,16 +66,62 @@ let clientScript = `
             width: 100%;
         }
 
+        .diwali, .thanksgiving{
+            padding-top: 10%;
+            height: 100%;
+            width: 100%;
+            z-index: 999999999;
+            background: transparent;
+            position: absolute;
+            top: 0;
+            display: grid;
+            grid-template-columns: 25% 50% 25%;
+            justify-items: center;
+        }
+
         .firework1 {
-            background:url("http://localhost:8000/firework1.gif");
+            height: 400px;
+            width: 400px;
+            background: url(http://localhost:8000/firework1.gif);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .firework2 {
+            height: 300px;
+            width: 300px;
+            background: url(http://localhost:8000/firework2.gif);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .diwali .happy {
+            height: 300px;
+            width: 600px;
+            background: url(http://localhost:8000/diwali.gif);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .thanksgiving .happy {
+            height: 300px;
+            width: 600px;
+            background: url(http://localhost:8000/thanksgiving.gif);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
         }
     </style>
-    <div class="diwali">
+    <div class="diwali hidden">
         <div class="firework1"></div>
         <div class="happy"></div>
         <div class="firework2"></div>
     </div>
-    <div class="container">
+    <div class="thanksgiving hidden">
+        <div class="turkey"></div>
+        <div class="happy"></div>
+        <div class="pilgrim"></div>
+    </div>
+    <div class="container hidden">
 	    <div class="loader">
             <span></span>
             <span></span>
@@ -234,7 +280,20 @@ let clientScript = `
             }
         }
         showLeaf();
-    </script>   
+    </script>  
+    <script>
+    function toggleContainers() {
+        let random = Math.floor(Math.random() * 30);
+        if (random > 10  && random < 19) {
+            document.querySelector('.diwali').classList.remove('hidden');
+        } else if (random > 20) {
+            document.querySelector('.thanksgiving').classList.remove('hidden');
+        } else {
+            document.querySelector('.container').classList.remove('hidden');
+        }
+    }
+    toggleContainers();
+    </script>    
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         var rythm = new Rythm();
