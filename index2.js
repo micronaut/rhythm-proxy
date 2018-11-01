@@ -66,18 +66,144 @@ let clientScript = `
             width: 100%;
         }
     </style>
-    <div class="creepy zombie hidden">
-        <img src="http://localhost:8000/zombie.gif" />
+    <div class="container">
+	    <div class="loader">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </div>
-    <div class="scary hidden">
-        <img class="scary-image" src="http://localhost:8000/scary.gif" />
-    </div>
-    <div class="creepy witch hidden">
-        <img src="http://localhost:8000/witch.gif" />
-    </div>
-    <div class="creepy ghost hidden">
-        <img src="http://localhost:8000/ghost.gif" />
-    </div>
+    <style>
+        .container{
+            top:0px;
+            width:100%;
+            height:100%;
+            position:absolute;
+            left:0%;
+            z-index: 999999;
+        }
+
+        .loader {
+            text-align: center;
+        }
+        .loader span {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            margin: -280px 40px 54px  -34px;
+                background:url("http://premiumcoding.com/CSSTricks/fallingLeaves/leaf.png");
+            
+            -webkit-animation: loader 10s infinite  linear;
+            -moz-animation: loader 10s infinite  linear;
+        }
+        .loader span:nth-child(5n+5) {
+
+            -webkit-animation-delay: 1.3s;
+            -moz-animation-delay: 1.3s;
+        }
+        .loader span:nth-child(3n+2) {
+
+            -webkit-animation-delay: 1.5s;
+            -moz-animation-delay: 1.5s;
+        }
+        .loader span:nth-child(2n+5) {
+
+            -webkit-animation-delay: 1.7s;
+            -moz-animation-delay: 1.7s;
+        }
+
+        .loader span:nth-child(3n+10) {
+
+            -webkit-animation-delay: 2.7s;
+            -moz-animation-delay: 2.7s;
+        }
+        .loader span:nth-child(7n+2) {
+
+            -webkit-animation-delay: 3.5s;
+            -moz-animation-delay: 3.5s;
+        }
+        .loader span:nth-child(4n+5) {
+
+            -webkit-animation-delay: 5.5s;
+            -moz-animation-delay: 5.5s;
+        }
+        .loader span:nth-child(3n+7) {
+
+            -webkit-animation-delay: 8s;
+            -moz-animation-delay: 8s;
+        }
+        @-webkit-keyframes loader {
+        0% {
+            width: 80px;
+            height: 80px;
+            opacity: 1;
+
+            -webkit-transform: translate(0, 0px) rotateZ(0deg);
+        }
+        75% {
+            width: 80px;
+            height: 80px;
+            opacity: 1;
+
+            -webkit-transform: translate(100px, 600px) rotateZ(270deg); 
+        }
+        100% {
+            width: 80px;
+            height: 80px;
+            opacity: 0;
+
+            -webkit-transform: translate(150px, 800px) rotateZ(360deg);
+        }
+        }
+        @-moz-keyframes loader {
+        0% {
+            width: 80px;
+            height: 80px;
+            opacity: 1;
+            
+            -webkit-transform: translate(0, 0px) rotateZ(0deg);
+        }
+        75% {
+            width: 80px;
+            height: 80px;
+            opacity: 1;
+        
+            -webkit-transform: translate(100px, 600px) rotateZ(270deg); 
+        }
+        100% {
+            width: 80px;
+            height: 80px;
+            opacity: 0;
+            
+            -webkit-transform: translate(150px, 800px) rotateZ(360deg);
+        }
+        }   
+    </style>    
     <script>
         function showScary() {
             let booCount = localStorage.getItem('boo') || '0';
