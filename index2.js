@@ -65,7 +65,16 @@ let clientScript = `
         .scary-image { 
             width: 100%;
         }
+
+        .firework1 {
+            background:url("http://localhost:8000/firework1.gif");
+        }
     </style>
+    <div class="diwali">
+        <div class="firework1"></div>
+        <div class="happy"></div>
+        <div class="firework2"></div>
+    </div>
     <div class="container">
 	    <div class="loader">
             <span></span>
