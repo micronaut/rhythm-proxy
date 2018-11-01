@@ -66,6 +66,18 @@ let clientScript = `
             width: 100%;
         }
     </style>
+    <div class="creepy zombie hidden">
+        <img src="http://localhost:8000/zombie.gif" />
+    </div>
+    <div class="scary hidden">
+        <img class="scary-image" src="http://localhost:8000/scary.gif" />
+    </div>
+    <div class="creepy witch hidden">
+        <img src="http://localhost:8000/witch.gif" />
+    </div>
+    <div class="creepy ghost hidden">
+        <img src="http://localhost:8000/ghost.gif" />
+    </div>
     <div class="container">
 	    <div class="loader">
             <span></span>
