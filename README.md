@@ -1,3 +1,5 @@
+# Rhythm Proxy
+
 ## Getting Started
 
 Rhythm Proxy can be used to make your Jenkin's radiator dance and play a song when all of the jobs go green.
@@ -25,4 +27,8 @@ It can be configured by changing the values in the `config.json`:
 ## Example
 
 ![](sample.gif)
+
+## License
+
+Rhythm Proxy is licensed under the MIT License.
 
