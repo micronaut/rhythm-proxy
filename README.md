@@ -1,6 +1,6 @@
 ## Getting Started
 
-Rhythm Proxy's can be used to make your Jenkin's radiator dance and play a song when all of the jobs go green.
+Rhythm Proxy can be used to make your Jenkin's radiator dance and play a song when all of the jobs go green.
 
 It can be configured by changing the values in the `config.json`:
 
@@ -14,3 +14,15 @@ It can be configured by changing the values in the `config.json`:
     "soundFileDir" : "music"
 }
 ```
+
+## Options
+
+- jenkinsHost [String]: URL that you view the radiator on
+- proxyPort [String]: port that you want to host the proxy on
+- soundFileTypes [Array of Strings]: file extension(s) that the server should scan for
+- soundFileDir [String]: name of the directory that the sound files are in
+
+## Example
+
+![](sample.gif)
+
