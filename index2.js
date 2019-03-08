@@ -328,6 +328,16 @@ simpleselect.func = function (node) {
 
 selects.push(simpleselect);
 
+var dashboardSelect = {};
+dashboardSelect.query = '.dashboard';
+dashboardSelect.func = function (node) {
+    var currentClass = node.getAttribute('class');
+
+    node.setAttribute('class', currentClass + ' ' + 'shake3');
+}
+
+selects.push(dashboardSelect);
+
 var app = connect();
 var proxy = httpProxy.createProxyServer({
    target: 'http://jenkins-as01.gale.web:8080',
