@@ -3,8 +3,15 @@ var http = require('http'),
     connect = require('connect'),
     httpProxy = require('http-proxy'),
     fileSystem = require('fs'),
-    path = require('path');
+    path = require('path')
+    config = require('./config');
       
+function setOptions() {
+    let test = `this is ${config.soundFiles}`;
+    console.log(test)
+}
+
+let test = setOptions`this is ${config.soundFiles}`;
 
 let clientScript = `
     <style>
@@ -273,14 +280,16 @@ let clientScript = `
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         var rythm = new Rythm();
-        let songs = ['jiggy-with-it.mp3', 'celebration.mp3', 'I-Feel-Good.mp3', 'Another-One-Bites-The-Dust.mp3'];
+        //let songs = ['jiggy-with-it.mp3', 'celebration.mp3', 'I-Feel-Good.mp3', 'Another-One-Bites-The-Dust.mp3'];
+        let songs = config;
+console.log(songs)
         let song = songs[Math.floor(Math.random()*songs.length)];
         rythm.setMusic("http://localhost:8000/" + song);
         rythm.addRythm("shake3", "shake", 0, 10, { direction: "left", min: 5, max: 100 });
         rythm.addRythm("twist1", "twist", 0, 10);
         rythm.addRythm("twist3", "twist", 0, 10, { direction: "left" });
         
-        let shouldPlay = localStorage.getItem('shouldPlay') || 'false';
+        let shouldPlay = 'true';//localStorage.getItem('shouldPlay') || 'false';
         if (shouldPlay === 'true' && document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
             localStorage.setItem('shouldPlay', 'false');
             setTimeout(function() {
