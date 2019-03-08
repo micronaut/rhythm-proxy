@@ -184,6 +184,10 @@ let clientScript = `
             background:url("http://localhost:8000/snowflake.png");
         }
 
+        .snowflake {
+            background:url("http://localhost:8000/snowflake.png");
+        }
+
         .loader span:nth-child(5n+5) {
 
             -webkit-animation-delay: 1.3s;
@@ -267,44 +271,20 @@ let clientScript = `
         }
         }   
     </style> 
-    <script>
-        function showLeaf() {
-            if (Math.floor(Math.random() * 10) > 4) {
-                document.querySelectorAll('.loader span').forEach(element => {
-                    element.classList.add('leaf');
-                });
-            } else {
-                document.querySelectorAll('.loader span').forEach(element => {
-                    element.classList.add('snowflake');
-                });
-            }
-        }
-        showLeaf();
-    </script>  
-    <script>
-    function toggleContainers() {
-        let random = Math.floor(Math.random() * 30);
-        if (random > 10  && random < 19) {
-            document.querySelector('.diwali').classList.remove('hidden');
-        } else if (random > 20) {
-            document.querySelector('.thanksgiving').classList.remove('hidden');
-        } else {
-            document.querySelector('.container').classList.remove('hidden');
-        }
-    }
-    toggleContainers();
-    </script>    
+   
+      
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         var rythm = new Rythm();
-        let songs = ['jiggy-with-it.mp3', 'celebration.mp3', 'dont-stop.mp3', 'jiggy-with-it.mp3'];
+        let songs = ['jiggy-with-it.mp3', 'celebration.mp3', 'I-Feel-Good.mp3', 'Another-One-Bites-The-Dust.mp3'];
         let song = songs[Math.floor(Math.random()*songs.length)];
-        rythm.setMusic("http://localhost:8000/" + song);
+        rythm.setMusic("http://localhost:8000/jiggy-with-it.mp3");// + song);
         rythm.addRythm("shake3", "shake", 0, 10, { direction: "left", min: 5, max: 100 });
         rythm.addRythm("twist1", "twist", 0, 10);
         rythm.addRythm("twist3", "twist", 0, 10, { direction: "left" });
         
-        let shouldPlay = localStorage.getItem('shouldPlay') || 'false';
+        
+        let shouldPlay = 'true' //localStorage.getItem('shouldPlay') || 'false';
         if (shouldPlay === 'true' && document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
             localStorage.setItem('shouldPlay', 'false');
             setTimeout(function() {
