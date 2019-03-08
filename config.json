@@ -3,5 +3,6 @@
     "proxyPort" : "8000",
     "soundFileTypes" : [
         ".mp3"
-    ]
+    ],
+    "soundFileDir" : "music"
 }
