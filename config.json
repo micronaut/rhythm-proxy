@@ -1,0 +1,7 @@
+{
+    "jenkinsHost" : "jenkins-as01.gale.web:8080",
+    "proxyPort" : "8000",
+    "soundFileTypes" : [
+        ".mp3"
+    ]
+}
