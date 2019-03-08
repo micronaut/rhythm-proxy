@@ -24,6 +24,14 @@ It can be configured by changing the values in the `config.json`:
 - soundFileTypes [Array of Strings]: file extension(s) that the server should scan for
 - soundFileDir [String]: name of the directory that the sound files are in
 
+## Usage
+
+`npm install`
+
+To start the server: `npm start`
+
+To run in dev mode so that it runs despite some jobs not being green: `npm run dev`
+
 ## Example
 
 ![](sample.gif)
