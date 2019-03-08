@@ -278,13 +278,12 @@ let clientScript = `
         var rythm = new Rythm();
         let songs = ['jiggy-with-it.mp3', 'celebration.mp3', 'I-Feel-Good.mp3', 'Another-One-Bites-The-Dust.mp3'];
         let song = songs[Math.floor(Math.random()*songs.length)];
-        rythm.setMusic("http://localhost:8000/jiggy-with-it.mp3");// + song);
+        rythm.setMusic("http://localhost:8000/" + song);
         rythm.addRythm("shake3", "shake", 0, 10, { direction: "left", min: 5, max: 100 });
         rythm.addRythm("twist1", "twist", 0, 10);
         rythm.addRythm("twist3", "twist", 0, 10, { direction: "left" });
         
-        
-        let shouldPlay = 'true' //localStorage.getItem('shouldPlay') || 'false';
+        let shouldPlay = localStorage.getItem('shouldPlay') || 'false';
         if (shouldPlay === 'true' && document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
             localStorage.setItem('shouldPlay', 'false');
             setTimeout(function() {
