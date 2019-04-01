@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-Rhythm Proxy can be used to make your Jenkin's radiator dance and play a song when all of the jobs go green.
+Rhythm Proxy can be used to make your Jenkin's radiator dance and play a song when all of the jobs go green.  Thanks to [Okazari](https://github.com/Okazari/Rythm.js) for his awesome work on Rythm.js!
 
 It can be configured by changing the values in the `config.json`:
 
