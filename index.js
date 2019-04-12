@@ -61,39 +61,64 @@ simpleselect.func = function (node) {
 
 selects.push(simpleselect);
 
-culpritSelect.query = 'div[tooltip*=-]';
+
+var Transform = require('stream').Transform;
+
+var appendTransform = new Transform({
+    transform(chunk, encoding, callback) {
+        
+        let chunkStr = chunk.toString();;
+        if (chunkStr.indexOf('Possible culprit:') > -1) {
+            console.log(chunkStr)
+            var culpritExtractPattern = /Possible culprit:\s*(.+)/gi;
+            var match = culpritExtractPattern.exec(chunkStr);
+            match[1].split(', ').forEach(culprit => {
+                chunkStr = chunkStr.replace(culprit, `<img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="50px" />`)
+            });
+        };
+        console.log(chunkStr)
+        callback(null, chunkStr);
+    }
+});
+
+culpritSelect.query = 'div[tooltip*=-] p';
 culpritSelect.func = function (node) {
 
+	var rs = node.createReadStream();
+    var ws = node.createWriteStream({outer: false});
+    
+    var images = '';
+	
+    // rs.pipe(concat(function(buf){
+    //     // buf is a Node Buffer instance which contains the entire data in stream
+    //     // if your stream sends textual data, use buf.toString() to get entire stream as string
+    //     var streamContent = buf.toString();
+    //     if (streamContent.indexOf('Possible culprit:') > -1) {
+    //         var culpritExtractPattern = /Possible culprit:\s*(.+)/gi;
+    //         var match = culpritExtractPattern.exec(streamContent);
+    //         match[1].split(', ').forEach(culprit => {
+    //             images += `<img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="50px" />`
+    //         });
+    //     }
+    // }), {end: false});
 
-    var rs = node.createReadStream();
-	var ws = node.createWriteStream({outer: false});
+    rs.pipe(appendTransform, {end: false})
+
+    // function foo(tt) {
+    //     process.stdout(tt);
+    // }
+
+
+    // var rs = node.createReadStream();
+	// var ws = node.createWriteStream({outer: false});
 	
 	// Read the node and put it back into our write stream, 
-	// but don't end the write stream when the readStream is closed.
+    // but don't end the write stream when the readStream is closed.
 	rs.pipe(ws, {end: false});
 	
-	// When the read stream has ended, attach our style to the end
-	rs.on('end', function(){
-		ws.end(out);
+    rs.on('end', function(){
+		ws.end();
 	});
-
-
-    var t = node.createReadStream().pipe(concat(function(buf){
-        // buf is a Node Buffer instance which contains the entire data in stream
-        // if your stream sends textual data, use buf.toString() to get entire stream as string
-        var streamContent = buf.toString();
-        if (streamContent.indexOf('Possible culprit:') > -1) {
-            var culpritExtractPattern = /Possible culprit:\s*(.+)/gi;
-            var match = culpritExtractPattern.exec(streamContent);
-            match[1].split(', ').forEach(culprit => {
-                console.log(culprit)
-                streamContent = streamContent.replace(culprit, `${culprit} <img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="50px" />`)
-            });
-console.log(streamContent)
-            node.createWriteStream({outer: false}).end(streamContent);
-        }
-    }), {end: false});
-   
 }
 
 selects.push(culpritSelect);
