@@ -2,6 +2,7 @@ let http = require('http'),
     connect = require('connect'),
     httpProxy = require('http-proxy'),
     fs = require('fs'),
+    concat = require('concat-stream'),
     path = require('path');
 let {jenkinsHost, proxyPort, soundFileTypes, soundFileDir} = require('./config');
 
@@ -32,6 +33,7 @@ let clientScript = `
 var selects = [];
 var simpleselect = {};
 var headSelect = {};
+var culpritSelect = {};
 
 headSelect.query = 'footer';
 headSelect.func = function(node) {
@@ -59,6 +61,43 @@ simpleselect.func = function (node) {
 
 selects.push(simpleselect);
 
+culpritSelect.query = 'div[tooltip*=-]';
+culpritSelect.func = function (node) {
+
+
+    var rs = node.createReadStream();
+	var ws = node.createWriteStream({outer: false});
+	
+	// Read the node and put it back into our write stream, 
+	// but don't end the write stream when the readStream is closed.
+	rs.pipe(ws, {end: false});
+	
+	// When the read stream has ended, attach our style to the end
+	rs.on('end', function(){
+		ws.end(out);
+	});
+
+
+    var t = node.createReadStream().pipe(concat(function(buf){
+        // buf is a Node Buffer instance which contains the entire data in stream
+        // if your stream sends textual data, use buf.toString() to get entire stream as string
+        var streamContent = buf.toString();
+        if (streamContent.indexOf('Possible culprit:') > -1) {
+            var culpritExtractPattern = /Possible culprit:\s*(.+)/gi;
+            var match = culpritExtractPattern.exec(streamContent);
+            match[1].split(', ').forEach(culprit => {
+                console.log(culprit)
+                streamContent = streamContent.replace(culprit, `${culprit} <img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="50px" />`)
+            });
+console.log(streamContent)
+            node.createWriteStream({outer: false}).end(streamContent);
+        }
+    }), {end: false});
+   
+}
+
+selects.push(culpritSelect);
+
 var app = connect();
 var proxy = httpProxy.createProxyServer({
    target: `http://${jenkinsHost}`,
@@ -81,6 +120,15 @@ app.use(
         });
         var readStream = fs.createReadStream(filePath);
         readStream.pipe(res);
+      } else if (req.url && req.url.indexOf('.jpg') > -1) {
+            var filePath = path.join(__dirname, req.url);
+            var stat = fs.statSync(filePath);
+            res.writeHead(200, {
+                'Content-Type': 'image/jpeg',
+                'Content-Length': stat.size
+            });
+            var readStream = fs.createReadStream(filePath);
+            readStream.pipe(res);
       } else {
         proxy.web(req, res);
       }
