@@ -2,7 +2,6 @@ let http = require('http'),
     connect = require('connect'),
     httpProxy = require('http-proxy'),
     fs = require('fs'),
-    concat = require('concat-stream'),
     path = require('path');
 let {jenkinsHost, proxyPort, soundFileTypes, soundFileDir} = require('./config');
 
@@ -61,64 +60,47 @@ simpleselect.func = function (node) {
 
 selects.push(simpleselect);
 
-
-var Transform = require('stream').Transform;
-
-var appendTransform = new Transform({
-    transform(chunk, encoding, callback) {
-        
-        let chunkStr = chunk.toString();;
-        if (chunkStr.indexOf('Possible culprit:') > -1) {
-            console.log(chunkStr)
-            var culpritExtractPattern = /Possible culprit:\s*(.+)/gi;
-            var match = culpritExtractPattern.exec(chunkStr);
-            match[1].split(', ').forEach(culprit => {
-                chunkStr = chunkStr.replace(culprit, `<img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="50px" />`)
-            });
-        };
-        console.log(chunkStr)
-        callback(null, chunkStr);
-    }
-});
-
 culpritSelect.query = 'div[tooltip*=-] p';
 culpritSelect.func = function (node) {
 
-	var rs = node.createReadStream();
-    var ws = node.createWriteStream({outer: false});
+	//Create a read/write stream wit the outer option 
+    //so we get the full tag and we can replace it
+    var stm = node.createStream({ "outer" : true });
+
+    //variable to hold all the info from the data events
+    var tag = '';
+
+    //collect all the data in the stream
+    stm.on('data', function(data) {
+       tag += data;
+    });
+
+    //When the read side of the stream has ended..
+    stm.on('end', function() {
+
+      //Print out the tag you can also parse it or regex if you want
+    //   process.stdout.write('tag:   ' + tag + '\n');
+    //   process.stdout.write('end:   ' + node.name + '\n');
+
+      let images = '';
+
+        if (tag.indexOf('Possible culprit:') > -1) {
+            var culpritExtractPattern = /Possible culprit:\s*(.+)</gi;
+            var match = culpritExtractPattern.exec(tag);
+            match[1].split(', ').forEach(culprit => {
+                if (fs.existsSync(`images/${culprit}.jpg`)) {
+                    images += `<img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="40%" style="border-radius: 20px; margin: 5px;"/>`
+                } else {
+                    images += `<img src="http://localhost:${proxyPort}/images/unknown.jpg" height="40%" style="border-radius: 20px; margin: 5px;"/>`
+                }
+            });
+        };
+      
+      //Now on the write side of the stream write some data using .end()
+      //N.B. if end isn't called it will just hang.  
+      stm.end(tag + images);      
     
-    var images = '';
-	
-    // rs.pipe(concat(function(buf){
-    //     // buf is a Node Buffer instance which contains the entire data in stream
-    //     // if your stream sends textual data, use buf.toString() to get entire stream as string
-    //     var streamContent = buf.toString();
-    //     if (streamContent.indexOf('Possible culprit:') > -1) {
-    //         var culpritExtractPattern = /Possible culprit:\s*(.+)/gi;
-    //         var match = culpritExtractPattern.exec(streamContent);
-    //         match[1].split(', ').forEach(culprit => {
-    //             images += `<img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="50px" />`
-    //         });
-    //     }
-    // }), {end: false});
-
-    rs.pipe(appendTransform, {end: false})
-
-    // function foo(tt) {
-    //     process.stdout(tt);
-    // }
-
-
-    // var rs = node.createReadStream();
-	// var ws = node.createWriteStream({outer: false});
-	
-	// Read the node and put it back into our write stream, 
-    // but don't end the write stream when the readStream is closed.
-	rs.pipe(ws, {end: false});
-	
-    rs.on('end', function(){
-		ws.end();
-	});
+    });    
 }
 
 selects.push(culpritSelect);
