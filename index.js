@@ -89,9 +89,9 @@ culpritSelect.func = function (node) {
             var match = culpritExtractPattern.exec(tag);
             match[1].split(', ').forEach(culprit => {
                 if (fs.existsSync(`images/${culprit}.jpg`)) {
-                    images += `<img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="40%" style="border-radius: 20px; margin: 5px;"/>`
+                    images += `<img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
                 } else {
-                    images += `<img src="http://localhost:${proxyPort}/images/unknown.jpg" height="40%" style="border-radius: 20px; margin: 5px;"/>`
+                    images += `<img src="http://localhost:${proxyPort}/images/unknown.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
                 }
             });
         };
