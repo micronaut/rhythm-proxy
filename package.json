@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./index.js",
-    "dev": "NODE_ENV=dev nodemon -e js"
+    "dev": "NODE_ENV=dev nodemon -e js",
+    "dev2": "nodemon -e js"
   },
   "keywords": [],
   "author": "Eric Danowski <eric.m.danowski@gmail.com>",

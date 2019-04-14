@@ -8,7 +8,7 @@ let {jenkinsHost, proxyPort, soundFileTypes, soundFileDir} = require('./config')
 let clientScript = `
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
-        var rythm = new Rythm();
+        let rythm = new Rythm();
         let songs = new Array(${fs.readdirSync(`${__dirname}/${soundFileDir}`).filter(file => soundFileTypes.includes(path.extname(file))).map(file => `'${file}'`)});
         let song = songs[Math.floor(Math.random() * songs.length)];
         rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/" + song);
@@ -25,7 +25,31 @@ let clientScript = `
         } else if (document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
             localStorage.setItem('shouldPlay', 'false');
         } else {
-	        localStorage.setItem('shouldPlay', 'true');
+            localStorage.setItem('shouldPlay', 'true');
+            let lastTimePlayedPayAttn = localStorage.getItem('payattn');
+
+            if (!lastTimePlayedPayAttn) {
+                localStorage.setItem('payattn', new Date());
+            }
+
+            let lastTimePlayedPayAttnAsDate = lastTimePlayedPayAttn = new Date(lastTimePlayedPayAttn) || new Date();
+
+            let now = new Date();
+            let timeDiff = Math.round(((now - lastTimePlayedPayAttnAsDate) / 1000));
+            if (timeDiff > 3600) {
+                localStorage.setItem('payattn', now);
+                var elems = document.querySelectorAll("div");
+                elems.forEach(e => {
+                    e.classList.remove("twist3", "shake3", "rythm-medium", "rythm-high", "rythm-bass");
+                });
+
+                if (Math.floor(Math.random() * 2)) {
+                    rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/who-can-it-be-now.mp3");
+                } else {
+                    rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/dont-forget-about-me.mp3");
+                }
+                rythm.start();
+            }
 	    }
     </script>
 `;
@@ -50,6 +74,7 @@ selects.push(headSelect);
 var rhythmClasses = ['rythm-medium', 'rythm-high', 'rythm-bass'];
 simpleselect.query = 'div[tooltip*=-]';
 simpleselect.func = function (node) {
+
     var currentClass = node.getAttribute('class');
     var twist = ' shake3';
     if (currentClass.indexOf('successful') > -1) {
@@ -85,13 +110,15 @@ culpritSelect.func = function (node) {
       let images = '';
 
         if (tag.indexOf('Possible culprit:') > -1) {
+            tag = tag.replace('Smylnycky, Jamie L', 'jsmylny');
             var culpritExtractPattern = /Possible culprit:\s*(.+)</gi;
             var match = culpritExtractPattern.exec(tag);
-            match[1].split(', ').forEach(culprit => {
+            match[1].split(', ').forEach((culprit, idx) => {
+                let clazz = idx % 2 === 0 ? 'twist1' : 'twist3';
                 if (fs.existsSync(`images/${culprit}.jpg`)) {
-                    images += `<img src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+                    images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
                 } else {
-                    images += `<img src="http://localhost:${proxyPort}/images/unknown.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+                    images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/unknown.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
                 }
             });
         };
