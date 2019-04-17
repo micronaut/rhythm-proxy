@@ -43,10 +43,14 @@ let clientScript = `
                     e.classList.remove("twist3", "shake3", "rythm-medium", "rythm-high", "rythm-bass");
                 });
 
-                if (Math.floor(Math.random() * 2)) {
+                let rnd = Math.floor(Math.random() * 3);
+
+                if (rnd === 0) {
                     rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/who-can-it-be-now.mp3");
-                } else {
+                } else if (rnd === 2) {
                     rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/dont-forget-about-me.mp3");
+                } else {
+                    rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/workin-for-a-livin.mp3");
                 }
                 rythm.start();
             }
