@@ -6,6 +6,14 @@ let http = require('http'),
 let {jenkinsHost, proxyPort, soundFileTypes, soundFileDir} = require('./config');
 
 let clientScript = `
+    // <style>
+    //     .ela {
+    //         background-image: url("http://localhost:${proxyPort}/images/elamaran.annamalai.jpg") !important;
+    //         background-repeat: no-repeat;
+    //         background-size: 5%;
+    //         background-position-x: center;
+    //     }
+    // </style>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         let rythm = new Rythm();
@@ -25,6 +33,11 @@ let clientScript = `
         } else if (document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
             localStorage.setItem('shouldPlay', 'false');
         } else {
+            // let failures = document.querySelectorAll('.failing');
+            // failures.forEach(e => {
+            //     e.classList.add("ela");
+            // });
+
             localStorage.setItem('shouldPlay', 'true');
             let lastTimePlayedPayAttn = localStorage.getItem('payattn');
 
@@ -46,11 +59,11 @@ let clientScript = `
                 let rnd = Math.floor(Math.random() * 3);
 
                 if (rnd === 0) {
-                    rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/who-can-it-be-now.mp3");
+                    rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/who-can-it-be-now.mp3");
                 } else if (rnd === 2) {
-                    rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/dont-forget-about-me.mp3");
+                    rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/dont-forget-about-me.mp3");
                 } else {
-                    rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/workin-for-a-livin.mp3");
+                    rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/workin-for-a-livin.mp3");
                 }
                 rythm.start();
             }
