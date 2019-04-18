@@ -49,19 +49,23 @@ let clientScript = `
 
             let now = new Date();
             let timeDiff = Math.round(((now - lastTimePlayedPayAttnAsDate) / 1000));
-            if (timeDiff > 3600) {
+            let twist1 = document.querySelectorAll('img.twist1');
+            let twist3 = document.querySelectorAll('img.twist3');
+            if (timeDiff > 0 && (twist1.length > 0 || twist3.length > 0)) {
                 localStorage.setItem('payattn', now);
                 var elems = document.querySelectorAll("div");
                 elems.forEach(e => {
                     e.classList.remove("twist3", "shake3", "rythm-medium", "rythm-high", "rythm-bass");
                 });
 
-                let rnd = Math.floor(Math.random() * 3);
+                let rnd = Math.floor(Math.random() * 4);
 
                 if (rnd === 0) {
                     rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/who-can-it-be-now.mp3");
-                } else if (rnd === 2) {
+                } else if (rnd === 1) {
                     rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/dont-forget-about-me.mp3");
+                } else if (rnd === 2) {
+                    rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/pay-attention.mp3");
                 } else {
                     rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/workin-for-a-livin.mp3");
                 }
@@ -124,22 +128,33 @@ culpritSelect.func = function (node) {
     //   process.stdout.write('tag:   ' + tag + '\n');
     //   process.stdout.write('end:   ' + node.name + '\n');
 
-      let images = '';
+    let images = '';
 
-        if (tag.indexOf('Possible culprit:') > -1) {
-            tag = tag.replace('Smylnycky, Jamie L', 'jsmylny');
-            var culpritExtractPattern = /Possible culprit:\s*(.+)</gi;
-            var match = culpritExtractPattern.exec(tag);
-            match[1].split(', ').forEach((culprit, idx) => {
-                let clazz = idx % 2 === 0 ? 'twist1' : 'twist3';
-                if (fs.existsSync(`images/${culprit}.jpg`)) {
-                    images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
-                } else {
-                    images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/unknown.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
-                }
-            });
-        };
-      
+    if (tag.indexOf('Claiming for') > -1) {
+        let culpritExtractPattern = /Claiming for .+ \((.+)\)/gi;
+        var match = culpritExtractPattern.exec(tag);
+        match[1].split(', ').forEach((culprit, idx) => {
+            let clazz = idx % 2 === 0 ? 'twist1' : 'twist3';
+            if (fs.existsSync(`images/${culprit}.jpg`)) {
+                images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+            } else {
+                images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/unknown.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+            }
+        });
+    }else if (tag.indexOf('Possible culprit:') > -1) {
+        tag = tag.replace('Smylnycky, Jamie L', 'jsmylny');
+        let culpritExtractPattern = /Possible culprit:\s*(.+)</gi;
+        var match = culpritExtractPattern.exec(tag);
+        match[1].split(', ').forEach((culprit, idx) => {
+            let clazz = idx % 2 === 0 ? 'twist1' : 'twist3';
+            if (fs.existsSync(`images/${culprit}.jpg`)) {
+                images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+            } else {
+                images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/unknown.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+            }
+        });
+    };
+    
       //Now on the write side of the stream write some data using .end()
       //N.B. if end isn't called it will just hang.  
       stm.end(tag + images);      
