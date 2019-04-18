@@ -51,7 +51,7 @@ let clientScript = `
             let timeDiff = Math.round(((now - lastTimePlayedPayAttnAsDate) / 1000));
             let twist1 = document.querySelectorAll('img.twist1');
             let twist3 = document.querySelectorAll('img.twist3');
-            if (timeDiff > 0 && (twist1.length > 0 || twist3.length > 0)) {
+            if (timeDiff > 3600 && (twist1.length > 0 || twist3.length > 0)) {
                 localStorage.setItem('payattn', now);
                 var elems = document.querySelectorAll("div");
                 elems.forEach(e => {
