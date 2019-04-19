@@ -6,14 +6,47 @@ let http = require('http'),
 let {jenkinsHost, proxyPort, soundFileTypes, soundFileDir} = require('./config');
 
 let clientScript = `
-    // <style>
-    //     .ela {
-    //         background-image: url("http://localhost:${proxyPort}/images/elamaran.annamalai.jpg") !important;
-    //         background-repeat: no-repeat;
-    //         background-size: 5%;
-    //         background-position-x: center;
-    //     }
-    // </style>
+    <style>
+    .flip-card {
+        background-color: transparent;
+        width: 300px;
+        height: 200px;
+        border: 1px solid #f1f1f1;
+        perspective: 1000px; /* Remove this if you don't want the 3D effect */
+      }
+      
+      .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+      }
+      
+      .flip-card.flip .flip-card-inner {
+        transform: rotateX(180deg);
+      }
+      
+      .flip-card-front, .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+      }
+      
+      .flip-card-back {
+        color: white;
+        transform: rotateX(180deg);
+      }
+
+      .flip-card-back img {
+          height: 90%;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script>
+        $.noConflict();
+    </script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
         let rythm = new Rythm();
@@ -33,11 +66,6 @@ let clientScript = `
         } else if (document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
             localStorage.setItem('shouldPlay', 'false');
         } else {
-            // let failures = document.querySelectorAll('.failing');
-            // failures.forEach(e => {
-            //     e.classList.add("ela");
-            // });
-
             localStorage.setItem('shouldPlay', 'true');
             let lastTimePlayedPayAttn = localStorage.getItem('payattn');
 
@@ -51,12 +79,24 @@ let clientScript = `
             let timeDiff = Math.round(((now - lastTimePlayedPayAttnAsDate) / 1000));
             let twist1 = document.querySelectorAll('img.twist1');
             let twist3 = document.querySelectorAll('img.twist3');
-            if (timeDiff > 3600 && (twist1.length > 0 || twist3.length > 0)) {
+            if (timeDiff > 0 && (twist1.length > 0 || twist3.length > 0)) {
                 localStorage.setItem('payattn', now);
                 var elems = document.querySelectorAll("div");
                 elems.forEach(e => {
                     e.classList.remove("twist3", "shake3", "rythm-medium", "rythm-high", "rythm-bass");
                 });
+
+                jQuery('div.job:not(.successful)').addClass('flip-card').wrapInner('<div class="flip-card-front"></div>');
+                jQuery('div.job:not(.successful)').each(function() {
+                    let imgs = jQuery(this).find('img').clone();
+                    let container = jQuery('<div class="flip-card-back"></div>');
+                    container.append(imgs);
+                    jQuery(this).append(container);
+                });
+    
+                jQuery('div.job:not(.successful)').wrapInner('<div class="flip-card-inner"></div>');
+
+                // jQuery('.flip-card').toggleClass('flip');
 
                 let rnd = Math.floor(Math.random() * 4);
 
