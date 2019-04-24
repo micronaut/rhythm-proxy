@@ -3,49 +3,84 @@ let http = require('http'),
     httpProxy = require('http-proxy'),
     fs = require('fs'),
     path = require('path');
+let jobStatusCache = require('./clientScript')
 let {jenkinsHost, proxyPort, soundFileTypes, soundFileDir} = require('./config');
 
 let clientScript = `
     <style>
-    .flip-card {
-        background-color: transparent;
-        width: 300px;
-        height: 200px;
-        border: 1px solid #f1f1f1;
-        perspective: 1000px; /* Remove this if you don't want the 3D effect */
-      }
-      
-      .flip-card-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        transition: transform 0.8s;
-        transform-style: preserve-3d;
-      }
-      
-      .flip-card.flip .flip-card-inner {
-        transform: rotateX(180deg);
-      }
-      
-      .flip-card-front, .flip-card-back {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-      }
-      
-      .flip-card-back {
-        color: white;
-        transform: rotateX(180deg);
-      }
+        .flip-card {
+            background-color: transparent;
+            width: 300px;
+            height: 200px;
+            border: 1px solid #f1f1f1;
+            perspective: 1000px; /* Remove this if you don't want the 3D effect */
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card.flip .flip-card-inner {
+            transform: rotateX(180deg);
+        }
 
-      .flip-card-back img {
-          height: 90%;
-      }
+        .flip-card.flip .img-cont {
+            display: none;
+        }
+        
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+        
+        .flip-card-back {
+            color: white;
+            transform: rotateX(180deg);
+        }
+
+        .flip-card-back img {
+            height: 90%;
+        }
+    </style>
+    <style>
+        .inlineP {
+            display: inline-block;
+        }
+
+        .img-cont {
+            position: absolute;
+            height: 65%;
+            right: 20px;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <script>
+    ${jobStatusCache}
+    </script>
+    <script>
         $.noConflict();
+        jQuery('div.job:not(.successful)').each(function() {
+            let imgs = jQuery(this).find('img');
+            let claimed = imgs.filter('.claimed');
+            if (claimed.length > 0) {
+                jQuery(this).find('p').eq(0).addClass('inlineP').after(claimed.clone());
+                imgs.remove();
+                jQuery(this).find('img').wrap('<div class="img-cont"></div>');
+            } else {
+                imgs.wrapAll('<div class="img-cont"></div>')
+                jQuery(this).find('p').eq(0).addClass('inlineP').after(imgs.parent('.img-cont'));
+            }
+            jQuery('.img-cont img').show();
+        });
     </script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script>
@@ -61,7 +96,7 @@ let clientScript = `
         if (${process.env.NODE_ENV === 'dev'} || (shouldPlay === 'true' && document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length)) {
             localStorage.setItem('shouldPlay', 'false');
             setTimeout(function() {
-                rythm.start();
+                // rythm.start();
             }, 5000);
         } else if (document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
             localStorage.setItem('shouldPlay', 'false');
@@ -79,24 +114,12 @@ let clientScript = `
             let timeDiff = Math.round(((now - lastTimePlayedPayAttnAsDate) / 1000));
             let twist1 = document.querySelectorAll('img.twist1');
             let twist3 = document.querySelectorAll('img.twist3');
-            if (timeDiff > 0 && (twist1.length > 0 || twist3.length > 0)) {
+            if (timeDiff > 3600 && (twist1.length > 0 || twist3.length > 0)) {
                 localStorage.setItem('payattn', now);
                 var elems = document.querySelectorAll("div");
                 elems.forEach(e => {
                     e.classList.remove("twist3", "shake3", "rythm-medium", "rythm-high", "rythm-bass");
                 });
-
-                jQuery('div.job:not(.successful)').addClass('flip-card').wrapInner('<div class="flip-card-front"></div>');
-                jQuery('div.job:not(.successful)').each(function() {
-                    let imgs = jQuery(this).find('img').clone();
-                    let container = jQuery('<div class="flip-card-back"></div>');
-                    container.append(imgs);
-                    jQuery(this).append(container);
-                });
-    
-                jQuery('div.job:not(.successful)').wrapInner('<div class="flip-card-inner"></div>');
-
-                // jQuery('.flip-card').toggleClass('flip');
 
                 let rnd = Math.floor(Math.random() * 4);
 
@@ -109,7 +132,7 @@ let clientScript = `
                 } else {
                     rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/workin-for-a-livin.mp3");
                 }
-                rythm.start();
+                // rythm.start();
             }
 	    }
     </script>
@@ -169,28 +192,27 @@ culpritSelect.func = function (node) {
     //   process.stdout.write('end:   ' + node.name + '\n');
 
     let images = '';
-
     if (tag.indexOf('Claiming for') > -1) {
         let culpritExtractPattern = /Claiming for .+ \((.+)\)/gi;
         var match = culpritExtractPattern.exec(tag);
         match[1].split(', ').forEach((culprit, idx) => {
-            let clazz = idx % 2 === 0 ? 'twist1' : 'twist3';
+            let clazz = idx % 2 === 0 ? 'twist1 claimed' : 'twist3 claimed';
             if (fs.existsSync(`images/${culprit}.jpg`)) {
-                images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+                images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
             } else {
-                images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/unknown.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+                images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/unknown.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
             }
         });
-    }else if (tag.indexOf('Possible culprit:') > -1) {
+    } else if (tag.indexOf('Possible culprit:') > -1) {
         tag = tag.replace('Smylnycky, Jamie L', 'jsmylny');
         let culpritExtractPattern = /Possible culprit:\s*(.+)</gi;
         var match = culpritExtractPattern.exec(tag);
         match[1].split(', ').forEach((culprit, idx) => {
-            let clazz = idx % 2 === 0 ? 'twist1' : 'twist3';
+            let clazz = idx % 2 === 0 ? 'twist1 culprit' : 'twist3 culprit';
             if (fs.existsSync(`images/${culprit}.jpg`)) {
-                images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+                images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
             } else {
-                images += `<img class=${clazz} src="http://localhost:${proxyPort}/images/unknown.jpg" height="30%" style="border-radius: 20px; margin: 5px;"/>`
+                images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/unknown.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
             }
         });
     };
