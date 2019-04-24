@@ -1,6 +1,5 @@
 node_modules
 .idea/
-*.mp3
 *.gif
 *.png
 .nyc_output/

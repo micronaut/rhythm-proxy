@@ -62,77 +62,17 @@ let clientScript = `
             align-items: center;
         }
     </style>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <script src="http://localhost:${proxyPort}/clientScript.js"></script>
     <script>
         $.noConflict();
-        jQuery('div.job:not(.successful)').each(function() {
-            let imgs = jQuery(this).find('img');
-            let claimed = imgs.filter('.claimed');
-            if (claimed.length > 0) {
-                jQuery(this).find('p').eq(0).addClass('inlineP').after(claimed.clone());
-                imgs.remove();
-                jQuery(this).find('img').wrap('<div class="img-cont"></div>');
-            } else {
-                imgs.wrapAll('<div class="img-cont"></div>')
-                jQuery(this).find('p').eq(0).addClass('inlineP').after(imgs.parent('.img-cont'));
-            }
-            jQuery('.img-cont img').show();
+        jQuery(document).ready(function() {
+            wrapImages();
+            updateJobStatusCache(${proxyPort});
+            let songs = new Array(${fs.readdirSync(`${__dirname}/${soundFileDir}`).filter(file => soundFileTypes.includes(path.extname(file))).map(file => `'${file}'`)});
+            doRadiatorDanceIfItsTime({proxyPort: ${proxyPort}, soundFileDir: '${soundFileDir}', songs, devEnv: ${process.env.NODE_ENV === 'dev'}});
         });
-    </script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
-    <script>
-        let rythm = new Rythm();
-        let songs = new Array(${fs.readdirSync(`${__dirname}/${soundFileDir}`).filter(file => soundFileTypes.includes(path.extname(file))).map(file => `'${file}'`)});
-        let song = songs[Math.floor(Math.random() * songs.length)];
-        rythm.setMusic("http://localhost:${proxyPort}/${soundFileDir}/" + song);
-        rythm.addRythm("shake3", "shake", 0, 10, { direction: "left", min: 5, max: 100 });
-        rythm.addRythm("twist1", "twist", 0, 10);
-        rythm.addRythm("twist3", "twist", 0, 10, { direction: "left" });
-        
-        let shouldPlay = localStorage.getItem('shouldPlay') || 'false';
-        if (${process.env.NODE_ENV === 'dev'} || (shouldPlay === 'true' && document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length)) {
-            localStorage.setItem('shouldPlay', 'false');
-            setTimeout(function() {
-                // rythm.start();
-            }, 5000);
-        } else if (document.querySelectorAll('div.job').length === document.querySelectorAll('div.successful').length) {
-            localStorage.setItem('shouldPlay', 'false');
-        } else {
-            localStorage.setItem('shouldPlay', 'true');
-            let lastTimePlayedPayAttn = localStorage.getItem('payattn');
-
-            if (!lastTimePlayedPayAttn) {
-                localStorage.setItem('payattn', new Date());
-            }
-
-            let lastTimePlayedPayAttnAsDate = lastTimePlayedPayAttn = new Date(lastTimePlayedPayAttn) || new Date();
-
-            let now = new Date();
-            let timeDiff = Math.round(((now - lastTimePlayedPayAttnAsDate) / 1000));
-            let twist1 = document.querySelectorAll('img.twist1');
-            let twist3 = document.querySelectorAll('img.twist3');
-            if (timeDiff > 3600 && (twist1.length > 0 || twist3.length > 0)) {
-                localStorage.setItem('payattn', now);
-                var elems = document.querySelectorAll("div");
-                elems.forEach(e => {
-                    e.classList.remove("twist3", "shake3", "rythm-medium", "rythm-high", "rythm-bass");
-                });
-
-                let rnd = Math.floor(Math.random() * 4);
-
-                if (rnd === 0) {
-                    rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/who-can-it-be-now.mp3");
-                } else if (rnd === 1) {
-                    rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/dont-forget-about-me.mp3");
-                } else if (rnd === 2) {
-                    rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/pay-attention.mp3");
-                } else {
-                    rythm.setMusic("http://localhost:${proxyPort}/culpritMusic/workin-for-a-livin.mp3");
-                }
-                // rythm.start();
-            }
-	    }
     </script>
 `;
 var selects = [];
@@ -255,7 +195,7 @@ app.use(
             });
             var readStream = fs.createReadStream(filePath);
             readStream.pipe(res);
-      }else if (req.url && req.url.indexOf('clientScript.js') > -1) {
+      } else if (req.url && req.url.indexOf('clientScript.js') > -1) {
             var filePath = path.join(__dirname, req.url);
             var stat = fs.statSync(filePath);
             res.writeHead(200, {
