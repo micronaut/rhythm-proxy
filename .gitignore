@@ -3,3 +3,5 @@ node_modules
 *.mp3
 *.gif
 *.png
+.nyc_output/
+coverage/

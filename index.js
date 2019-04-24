@@ -63,9 +63,7 @@ let clientScript = `
         }
     </style>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-    <script>
-    ${jobStatusCache}
-    </script>
+    <script src="http://localhost:${proxyPort}/clientScript.js"></script>
     <script>
         $.noConflict();
         jQuery('div.job:not(.successful)').each(function() {
@@ -253,6 +251,15 @@ app.use(
             var stat = fs.statSync(filePath);
             res.writeHead(200, {
                 'Content-Type': 'image/jpeg',
+                'Content-Length': stat.size
+            });
+            var readStream = fs.createReadStream(filePath);
+            readStream.pipe(res);
+      }else if (req.url && req.url.indexOf('clientScript.js') > -1) {
+            var filePath = path.join(__dirname, req.url);
+            var stat = fs.statSync(filePath);
+            res.writeHead(200, {
+                'Content-Type': 'text/javascript',
                 'Content-Length': stat.size
             });
             var readStream = fs.createReadStream(filePath);
