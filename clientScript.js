@@ -13,13 +13,14 @@ function updateJobStatusCache(proxyPort = 8000) {
       .filter(c => STATUS.includes(c))
       .shift();
 
-    let lastStatus = storedCache.get($element.attr("title")) || "";
+    let lastStatus = storedCache.get($element.attr("tooltip")) || "";
     if (currentStatus !== lastStatus && currentStatus === "claimed") {
       $element
         .addClass("flip-card")
         .wrapInner('<div class="flip-card-front"></div>');
       let imgs = $element.find("img").clone();
       let container = jQuery('<div class="flip-card-back"></div>');
+      container.append(`<img class="guilty" src="http://localhost:${proxyPort}/guilty.jpg" />`);
       container.append(imgs);
       $element.append(container);
       $element.wrapInner('<div class="flip-card-inner"></div>');
@@ -38,7 +39,9 @@ function updateJobStatusCache(proxyPort = 8000) {
         jQuery(".flip-card").toggleClass("flip");
       }, 5000);
     });
-    jQuery("#survey-says").trigger("play");
+    setTimeout(function() {
+        jQuery("#survey-says").trigger("play");
+    }, 2000);
   }
 }
 

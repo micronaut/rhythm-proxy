@@ -61,6 +61,11 @@ let clientScript = `
             display: flex;
             align-items: center;
         }
+
+        .flip-card-back img.guilty {
+            margin: 0 20px;
+            height: 65%;
+        }
     </style>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>

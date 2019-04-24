@@ -60,6 +60,19 @@ describe("client spec", () => {
         chai.expect($('#job1').html()).to.equal('<div>inner</div>');
     });
 
+    it("should NOT add class or wrap elements if new status equals last status", () => {
+        localStorageGetItemStub.withArgs('jobStatusCache').returns('[["job-1","claimed"],["job-2","successful"],["job-3","claimed"]]');
+        $("body").append(`
+            <div class="fixture">
+                <div id="job1" tooltip="job-1" class="job claimed building"><div>inner</div></div>
+            </div>
+        `);
+        updateJobStatusCache();
+    
+        chai.expect($('#job1').hasClass('flip-card')).to.equal(false);
+        chai.expect($('#job1').html()).to.equal('<div>inner</div>');
+    });
+
     it("should add class and wrap inner elements", () => {
         localStorageGetItemStub.withArgs('jobStatusCache').returns('[["job-1","failing"],["job-2","successful"],["job-3","claimed"]]');
         $("body").append(`
@@ -70,7 +83,7 @@ describe("client spec", () => {
         updateJobStatusCache();
     
         chai.expect($('#job1').hasClass('flip-card')).to.equal(true);
-        chai.expect($('#job1').html()).to.equal('<div class="flip-card-inner"><div class="flip-card-front"><div>inner</div></div><div class="flip-card-back"></div></div>');
+        chai.expect($('#job1').html()).to.equal('<div class="flip-card-inner"><div class="flip-card-front"><div>inner</div></div><div class="flip-card-back"><img class="guilty" src="http://localhost:8000/guilty.jpg"></div></div>');
       });
     
       it("should add element with cloned images", () => {
@@ -82,10 +95,11 @@ describe("client spec", () => {
         `);
         updateJobStatusCache();
        
-        chai.expect($('#job1 .flip-card-inner').html()).to.equal('<div class="flip-card-front"><div><img src="img/1"><img src="img/2"></div></div><div class="flip-card-back"><img src="img/1"><img src="img/2"></div>');
+        chai.expect($('#job1 .flip-card-inner').html()).to.equal('<div class="flip-card-front"><div><img src="img/1"><img src="img/2"></div></div><div class="flip-card-back"><img class="guilty" src="http://localhost:8000/guilty.jpg"><img src="img/1"><img src="img/2"></div>');
       });
 
       it("should add audio element and trigger play if there are flip cards", () => {
+        let clock = sinon.useFakeTimers();
         $("body").append(`
             <div class="fixture">
                 <div class="flip-card"></div>
@@ -94,11 +108,15 @@ describe("client spec", () => {
         `);
         updateJobStatusCache(8000);
        
+        clock.tick(1000);
+        sinon.assert.notCalled(triggerStub);
+        clock.tick(1001);
         sinon.assert.calledWith(
             triggerStub,
             "play"
         );
         chai.expect($('#main-panel').html()).to.equal('<audio class="audios" id="survey-says" controls="" preload="none"><source src="http://localhost:8000/survey-said.mp3" type="audio/mpeg"></audio>');
+        clock.restore();
       });
 
       it("should toggle class when audio play is ended and after timeout", () => {

@@ -7,7 +7,7 @@
     "test": "nyc --reporter=html --reporter=text ./node_modules/.bin/mocha --reporter spec",
     "start": "node ./index.js",
     "dev": "NODE_ENV=dev nodemon -e js",
-    "zip": "bestzip bundle.zip culpritMusic/* music/* images/* clientScript.js config.json package.json package-lock.json survey-said.mp3 index.js",
+    "zip": "bestzip bundle.zip culpritMusic/* music/* images/* clientScript.js config.json package.json package-lock.json survey-said.mp3 guilty.jpg index.js",
     "dev2": "nodemon -e js"
   },
   "keywords": [],
