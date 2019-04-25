@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text ./node_modules/.bin/mocha --reporter spec",
+    "test": "mocha-chrome SpecRunner.html --ignore-resource-errors --ignore-exceptions --reporter spec",
     "start": "node ./index.js",
     "dev": "NODE_ENV=dev nodemon -e js",
     "zip": "bestzip bundle.zip culpritMusic/* music/* images/* clientScript.js config.json package.json package-lock.json survey-said.mp3 guilty.jpg index.js",
-    "dev2": "nodemon -e js"
+    "dev2": "nodemon -e js",
+    "notworking-coverage": "nyc --reporter=html --reporter=text ./node_modules/.bin/mocha './test/*.js' --reporter spec --file ./clientScript.js --require ./node_modules/sinon"
   },
   "keywords": [],
   "author": "Eric Danowski <eric.m.danowski@gmail.com>",
@@ -26,6 +27,7 @@
     "jquery": "^2.2.4",
     "jsdom": "^15.0.0",
     "mocha": "^6.1.4",
+    "mocha-chrome": "^2.0.0",
     "nodemon": "^1.18.10",
     "nyc": "^14.0.0"
   }
