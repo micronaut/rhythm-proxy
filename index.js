@@ -136,7 +136,7 @@ culpritSelect.func = function (node) {
 
     let images = '';
     if (tag.indexOf('Claiming for') > -1) {
-        let culpritExtractPattern = /Claiming for .+ \((.+)\)/gi;
+        let culpritExtractPattern = /Claiming for\s*\((.+?)\)/gi;
         var match = culpritExtractPattern.exec(tag);
         match[1].split(', ').forEach((culprit, idx) => {
             let clazz = idx % 2 === 0 ? 'twist1 claimed' : 'twist3 claimed';
@@ -177,6 +177,10 @@ var proxy = httpProxy.createProxyServer({
    'Accept-Encoding': 'identity'},
    followRedirects: true
 })
+
+// proxy.on('error', function(e) {
+//     ...
+// });
 
 app.use(require('harmon')([], selects, true));
 

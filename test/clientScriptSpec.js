@@ -134,9 +134,9 @@ describe("client spec", () => {
         $('#survey-says').trigger('ended');
 
         chai.expect($('.flip-card').hasClass('flip')).to.equal(true);
-        clock.tick(2500);
+        clock.tick(10000);
         chai.expect($('.flip-card').hasClass('flip')).to.equal(true);
-        clock.tick(2501);
+        clock.tick(10001);
         chai.expect($('.flip-card').hasClass('flip')).to.equal(false);
         clock.restore();
       });
