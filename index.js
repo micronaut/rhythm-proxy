@@ -64,7 +64,7 @@ let clientScript = `
 
         .flip-card-back img.guilty {
             margin: 0 20px;
-            height: 65%;
+		height: 65%;
         }
     </style>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rythm.js/2.2.4/rythm.min.js"></script>
@@ -138,14 +138,17 @@ culpritSelect.func = function (node) {
     if (tag.indexOf('Claiming for') > -1) {
         let culpritExtractPattern = /Claiming for\s*\((.+?)\)/gi;
         var match = culpritExtractPattern.exec(tag);
-        match[1].split(', ').forEach((culprit, idx) => {
-            let clazz = idx % 2 === 0 ? 'twist1 claimed' : 'twist3 claimed';
-            if (fs.existsSync(`images/${culprit}.jpg`)) {
-                images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
-            } else {
-                images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/unknown.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
-            }
-        });
+		match[1].split(', ').forEach((culprit, idx) => {
+		    let clazz = idx % 2 === 0 ? 'twist1 claimed' : 'twist3 claimed';
+		    if (fs.existsSync(`images/${culprit}.jpg`)) {
+			images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
+		    } else if (fs.existsSync(`images/${culprit}.gif`)) {
+			images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/${culprit}.gif" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
+		    } else {
+			images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/unknown.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
+		    }
+		});
+	
     } else if (tag.indexOf('Possible culprit:') > -1) {
         tag = tag.replace('Smylnycky, Jamie L', 'jsmylny');
         let culpritExtractPattern = /Possible culprit:\s*(.+)</gi;
@@ -154,6 +157,8 @@ culpritSelect.func = function (node) {
             let clazz = idx % 2 === 0 ? 'twist1 culprit' : 'twist3 culprit';
             if (fs.existsSync(`images/${culprit}.jpg`)) {
                 images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/${culprit}.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
+            } else if (fs.existsSync(`images/${culprit}.gif`)) {
+                images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/${culprit}.gif" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
             } else {
                 images += `<img class='${clazz}' src="http://localhost:${proxyPort}/images/unknown.jpg" height="90%" style="border-radius: 20px; margin: 5px; display:none;"/>`
             }
@@ -169,55 +174,76 @@ culpritSelect.func = function (node) {
 
 selects.push(culpritSelect);
 
-var app = connect();
-var proxy = httpProxy.createProxyServer({
-   target: `http://${jenkinsHost}`,
-   agent  : http.globalAgent, 
-   headers:{ host: `${jenkinsHost}`,
-   'Accept-Encoding': 'identity'},
-   followRedirects: true
-})
 
-// proxy.on('error', function(e) {
-//     ...
-// });
+function createProxyServer() {
+    var app = connect();
+    var proxy = httpProxy.createProxyServer({
+       target: `http://${jenkinsHost}`,
+       agent  : http.globalAgent, 
+       headers:{ host: `${jenkinsHost}`,
+       'Accept-Encoding': 'identity'},
+       followRedirects: true
+    })
 
-app.use(require('harmon')([], selects, true));
-
-app.use(
-  function (req, res) {
-      if (req.url && req.url.indexOf('.mp3') > -1) {
-        var filePath = path.join(__dirname, req.url);
-        var stat = fs.statSync(filePath);
-        res.writeHead(200, {
-            'Content-Type': 'audio/mpeg',
-            'Content-Length': stat.size
-        });
-        var readStream = fs.createReadStream(filePath);
-        readStream.pipe(res);
-      } else if (req.url && req.url.indexOf('.jpg') > -1) {
+    proxy.on('error', function(error, req, res) {
+        proxy.close();
+        server.close();
+        console.log(`Error occurred: ${error.message}`)
+        setTimeout(() => {
+            console.log('Trying to restart proxy....')
+            createProxyServer()
+        }, 30000)
+    });
+    
+    app.use(require('harmon')([], selects, true));
+    
+    app.use(
+      function (req, res) {
+          if (req.url && req.url.indexOf('.mp3') > -1) {
             var filePath = path.join(__dirname, req.url);
             var stat = fs.statSync(filePath);
             res.writeHead(200, {
-                'Content-Type': 'image/jpeg',
+                'Content-Type': 'audio/mpeg',
                 'Content-Length': stat.size
             });
             var readStream = fs.createReadStream(filePath);
             readStream.pipe(res);
-      } else if (req.url && req.url.indexOf('clientScript.js') > -1) {
-            var filePath = path.join(__dirname, req.url);
-            var stat = fs.statSync(filePath);
-            res.writeHead(200, {
-                'Content-Type': 'text/javascript',
-                'Content-Length': stat.size
-            });
-            var readStream = fs.createReadStream(filePath);
-            readStream.pipe(res);
-      } else {
-        proxy.web(req, res);
+          } else if (req.url && req.url.indexOf('.jpg') > -1) {
+                var filePath = path.join(__dirname, req.url);
+                var stat = fs.statSync(filePath);
+                res.writeHead(200, {
+                    'Content-Type': 'image/jpeg',
+                    'Content-Length': stat.size
+                });
+                var readStream = fs.createReadStream(filePath);
+                readStream.pipe(res);
+          } else if (req.url && req.url.indexOf('.gif') > -1) {
+                var filePath = path.join(__dirname, req.url);
+                var stat = fs.statSync(filePath);
+                res.writeHead(200, {
+                    'Content-Type': 'image/gif',
+                    'Content-Length': stat.size
+                });
+                var readStream = fs.createReadStream(filePath);
+                readStream.pipe(res);
+          } else if (req.url && req.url.indexOf('clientScript.js') > -1) {
+                var filePath = path.join(__dirname, req.url);
+                var stat = fs.statSync(filePath);
+                res.writeHead(200, {
+                    'Content-Type': 'text/javascript',
+                    'Content-Length': stat.size
+                });
+                var readStream = fs.createReadStream(filePath);
+                readStream.pipe(res);
+          } else {
+                proxy.web(req, res);
+          }
       }
-  }
-);
+    );
+    
+    var server = http.createServer(app);
+    server.listen(`${proxyPort}`)
+    console.log(`Server listening on port ${proxyPort}`);
+}
 
-http.createServer(app).listen(`${proxyPort}`);
-console.log(`Server listening on port ${proxyPort}`);
+createProxyServer();
