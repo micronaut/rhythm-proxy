@@ -192,7 +192,7 @@ function createProxyServer() {
         setTimeout(() => {
             console.log('Trying to restart proxy....')
             createProxyServer()
-        }, 30000)
+        }, 60000)
     });
     
     app.use(require('harmon')([], selects, true));
@@ -242,6 +242,16 @@ function createProxyServer() {
     );
     
     var server = http.createServer(app);
+    server.on('error', err => {
+        console.log(`Error listening on port ${proxyPort}: ${err.message}`);
+        proxy.close();
+        server.close();
+        setTimeout(() => {
+            console.log('Trying to restart proxy after listen....')
+            createProxyServer()
+        }, 60000)
+    });
+
     server.listen(`${proxyPort}`)
     console.log(`Server listening on port ${proxyPort}`);
 }

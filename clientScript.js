@@ -39,9 +39,7 @@ function updateJobStatusCache(proxyPort = 8000) {
         jQuery(".flip-card").toggleClass("flip");
       }, 20000);
     });
-    setTimeout(function() {
-        jQuery("#survey-says").trigger("play");
-    }, 2000);
+    jQuery("#survey-says").trigger("play");
   }
 }
 
